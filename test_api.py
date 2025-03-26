@@ -94,7 +94,7 @@ def test_get_user_list_after_create_user(base_url, fill_test_data):
     assert values_equal
     assert len(api_user_list) == len(fill_test_data)
 
-
+#PATCH
 def test_patch_update_all_data(base_url):
     body = {
         "email": "test_email",
@@ -104,14 +104,33 @@ def test_patch_update_all_data(base_url):
     }
     response = requests.post(url=f"{base_url}/users", json=body)
     assert response.status_code == 200
-    new_user = response.json()
-    print(new_user)
-    new_body = {
-        "first_name": "1",
-        "last_name": "1",
-        "avatar": "1"
+    id = response.json()['id']
+    for key, value in body.items():
+        body[key] = "1"
+        new_body = {key: '1'}
+        response = requests.patch(url=f"{base_url}/users/{id}", json=new_body)
+        api_new_user = response.json()
+        value_equal = all(body[key] == api_new_user[key] for key in new_body if key in api_new_user)
+        assert value_equal
+    response = requests.delete(f"{base_url}/users/{id}")
+
+#DELETE
+def test_delete_user(base_url):
+    body = {
+        "email": "test_email",
+        "first_name": "test_first_name",
+        "last_name": "test_last_name",
+        "avatar": "test_avatar"
     }
-    response = requests.patch(url=f"{base_url}/users/{new_user['id']}", json=new_body)
-    api_new_user = response.json()
-    value_equal = all(new_body[key] == api_new_user[key] for key in new_body if key in api_new_user)
-    assert value_equal
+    response = requests.post(url=f"{base_url}/users", json=body)
+    assert response.status_code == 200
+    id = response.json()['id']
+    response = requests.delete(f"{base_url}/users/{id}")
+    assert response.status_code == 200
+    response = requests.get(f"{base_url}/users/{id}")
+    assert response.status_code == 404
+    response = requests.delete(f"{base_url}/users/{id}")
+    assert response.status_code == 404
+
+
+

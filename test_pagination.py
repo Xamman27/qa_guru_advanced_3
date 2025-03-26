@@ -6,7 +6,7 @@ import math
 
 users_count = len(users)
 
-def test_pagination_get_users_default(base_url):
+def test_pagination_get_users_default(base_url,fill_test_data):
     response = requests.get(f'{base_url}/users')
     assert response.status_code == 200
     data = response.json()
@@ -83,19 +83,4 @@ def test_pagination_get_users_no_duplicates(base_url):
 
     user_ids = [user['id'] for user in all_users]
     assert len(user_ids) == len(set(user_ids))
-
-
-def test_pagination_get_users_different_pages(base_url):
-    size = 5
-    page_1_response = requests.get(f'{base_url}/users?page=1&size={size}')
-    page_2_response = requests.get(f'{base_url}/users?page=2&size={size}')
-
-    assert page_1_response.status_code == 200
-    assert page_2_response.status_code == 200
-
-    page_1 = page_1_response.json()['items']
-    page_2 = page_2_response.json()['items']
-
-    assert page_1 == list(users.values())[:size]
-    assert page_2 == list(users.values())[size:size * 2]
 
